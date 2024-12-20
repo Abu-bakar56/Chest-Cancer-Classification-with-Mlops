@@ -1,5 +1,4 @@
 tensorflow==2.10.1
-git-lfs
 pandas 
 gdown
 dvc
