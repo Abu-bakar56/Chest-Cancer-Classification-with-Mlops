@@ -2,6 +2,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import os
+import git-lfs
 
 
 
@@ -13,9 +14,13 @@ class PredictionPipeline:
     
     def predict(self):
         ## load model
-        
+
+  
+        model_file = git-lfs.fetch(os.path.join("model","model.h5"))
+        model = tf.keras.models.load_model(model_file)
+
         # model = load_model(os.path.join("artifacts","training", "model.h5"))
-        model = load_model(os.path.join("model","model.h5"))
+        # model = load_model(os.path.join("model","model.h5"))
        
 
         imagename = self.filename
