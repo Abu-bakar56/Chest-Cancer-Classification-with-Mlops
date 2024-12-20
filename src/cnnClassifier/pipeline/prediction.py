@@ -1,52 +1,41 @@
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
+import tensorflow as tf
 import os
-import git-lfs
-
 
 
 class PredictionPipeline:
-    def __init__(self,filename):
-        self.filename =filename
+    def __init__(self, filename):
+        self.filename = filename
 
-
-    
     def predict(self):
-        ## load model
+        # Path to the model file
+        model_path = os.path.join("model", "model.h5")
 
-  
-        model_file = git-lfs.fetch(os.path.join("model","model.h5"))
-        model = tf.keras.models.load_model(model_file)
+        # Check if the model file exists
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model file not found at {model_path}. Ensure it is correctly deployed.")
 
-        # model = load_model(os.path.join("artifacts","training", "model.h5"))
-        # model = load_model(os.path.join("model","model.h5"))
-       
+        # Load model
+        model = tf.keras.models.load_model(model_path)
 
-        imagename = self.filename
-        test_image = image.load_img(imagename, target_size = (224,224))
+        # Preprocess image
+        test_image = image.load_img(self.filename, target_size=(224, 224))
         test_image = image.img_to_array(test_image)
-        test_image = np.expand_dims(test_image, axis = 0)
-        test_image = test_image / 255.0 
-        
+        test_image = np.expand_dims(test_image, axis=0) / 255.0  # Normalize image
+
+        # Perform prediction
         output = model.predict(test_image)
-        print(output)  
-        result = np.argmax(output, axis=1)
+        result = np.argmax(output, axis=1)[0]
 
-        print(result)
-
-        if result[0] == 0:
-          prediction = 'Adenocarcinoma Cancer'
-        elif result[0] == 1:
-          prediction = 'Large cell carcinoma'
-        elif result[0] == 2:
-          prediction = 'Normal'
-        elif result[0] == 3:
-           prediction = 'Squamous cell carcinoma'
+        # Map predictions to class names
+        class_map = {
+            0: 'Adenocarcinoma Cancer',
+            1: 'Large cell carcinoma',
+            2: 'Normal',
+            3: 'Squamous cell carcinoma'
+        }
+        prediction = class_map.get(result, "Unknown")
 
         return [{"image": prediction}]
-
-    
-        
-       
-
